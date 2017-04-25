@@ -1,0 +1,5 @@
+* To build all executables, please run "make" or "make all"
+* To build echo_s only, please run: "make echo_s"
+* To build echo_c only, please run: "make echo_c"
+* To build log_s only, please run: "make log_s"
+* To clean up executables, please run: "make clean"
