@@ -27,6 +27,11 @@ int *tcpSockFDs;
 /* UDP socket file descriptor for the server process. */
 int *udpSockFDs;
 
+/* IP address of the log server. Defaults to 127.0.0.1 (localhost), but can be overridden by
+ * a command-line parameter.
+ */
+char *logServerIPAddress = "127.0.0.1";
+
 void interruptHandler(int signalNo) {
   for (int i = 0; i < numPorts; i++) {
     close(tcpSockFDs[i]);
@@ -103,7 +108,7 @@ void sendToLogServer(const char *ipAddress, const char *messageContent) {
   struct sockaddr_in serv_addr;
 
   int portno = 9999;
-  struct hostent *server = gethostbyname("localhost");
+  struct hostent *server = gethostbyname(logServerIPAddress);
   if (server == NULL) {
     fprintf(stderr, "error, no such host\n");
     exit(0);
@@ -150,20 +155,22 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  numPorts = argc - 1;  /* -1, because argv[0] will be the name of the executable. */
-  if (numPorts > 3) {
-    numPorts = 3;
-  }
-  int *portNos = malloc(numPorts * sizeof(int));
+  numPorts = 0;
+  // 3 is the max number of ports echo_s will support.
+  int *portNos = malloc(3 * sizeof(int));
 
-  for (int i = 0; i < numPorts; i++) {
-    int portNo = atoi(argv[i + 1]);
-    if (portNo <= 0) {
-      printf("Invalid arguments to echo_s\n");
-      return 1;
+  // Skip 0, because it will be the name of the executable.
+  for (int i = 1; i < argc; i++) {
+    char *arg = argv[i];
+
+    if (strcmp(arg, "-logip") == 0) {
+      logServerIPAddress = argv[i + 1];
+      break;
+    } else {
+      int portNo = atoi(argv[i]);
+      portNos[i - 1] = portNo;
+      numPorts++;
     }
-
-    portNos[i] = portNo;
   }
 
   int *newtcpSockFDs = calloc(numPorts, sizeof(int));
