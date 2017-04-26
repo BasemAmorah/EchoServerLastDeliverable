@@ -21,6 +21,9 @@
 /* Number of ports that will be listened by the server process. */
 int numPorts;
 
+//user defined port number
+int userDefinedPortNo;
+
 /* TCP socket file descriptors for the server process. */
 int *tcpSockFDs;
 
@@ -158,18 +161,43 @@ int main(int argc, char **argv) {
   numPorts = 0;
   // 3 is the max number of ports echo_s will support.
   int *portNos = malloc(3 * sizeof(int));
+  
+  //this will determine whether or not to 
+  int isUserDefined = 0;
 
-  // Skip 0, because it will be the name of the executable.
-  for (int i = 1; i < argc; i++) {
-    char *arg = argv[i];
-
-    if (strcmp(arg, "-logip") == 0) {
-      logServerIPAddress = argv[i + 1];
-      break;
-    } else {
-      int portNo = atoi(argv[i]);
-      portNos[i - 1] = portNo;
+  //skip 0, since it's the name of the executable. After that, check if the arguments entered contains -logport and a port number
+  for(int x = 1; x < argc; x++)
+  {
+    char *arg = argv[x];
+   
+   //if the argument == -logport, get the next argument and set that as the userDefinedPortNo
+    if(strcmp(arg, "-logport") == 0)
+    {
+      if((userDefinedPortNo = atoi(argv[x+1]))==0)
+      {
+        error("Invalid argument for user defined port number");
+      }
+      isUserDefined++;
+      portNos[0] = userDefinedPortNo;
       numPorts++;
+      break;
+    }
+  }
+  
+  if(isUserDefined>0)
+  {
+    // Skip 0, because it will be the name of the executable.
+    for (int i = 1; i < argc; i++) {
+      char *arg = argv[i];
+
+      if (strcmp(arg, "-logip") == 0) {
+        logServerIPAddress = argv[i + 1];
+        break;
+      } else {
+        int portNo = atoi(argv[i]);
+        portNos[i - 1] = portNo;
+        numPorts++;
+      }
     }
   }
 
