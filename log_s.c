@@ -126,6 +126,12 @@ int main(int argc, char *argv[]) {
       error("Error in recvfrom");
     }
 
+    if (strcmp(buffer, ServerTerminationMessage) == 0) {
+      /* If this is a termination message, break out of the loop and let the program finish */
+      printf("Logging server is stopping...\n");
+      break;
+    }
+
     pid_t pid = fork();
     if (pid > 0) {
       /* This is the parent process. Do nothing here and keep looping
@@ -141,6 +147,7 @@ int main(int argc, char *argv[]) {
       error("Could not fork a child process");
     }
   }
-  
+
+  close(udpSockFD);
   return 0;
 }
