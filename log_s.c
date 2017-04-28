@@ -85,9 +85,23 @@ int main(int argc, char *argv[]) {
   signal(SIGSTOP, interruptHandler);
   signal(SIGKILL, interruptHandler);
 
+  const int defaultPortNo = 9999;
+  int portNo = defaultPortNo;
+
+  if (argc >= 3 && strcmp(argv[1], "-port") == 0) {
+    /* Received port parameter */
+
+    char *portNoString = argv[2];
+    portNo = atoi(portNoString);
+
+    if (portNo <= 0) {
+      fprintf(stderr, "Invalid port received: '%s', defaulting to port %d...\n", portNoString, defaultPortNo);
+      portNo = defaultPortNo;
+    }
+  }
+
   /* Set the server address */
   bzero((char *) &serv_addr, sizeof(serv_addr));
-  const int portNo = 9999;
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = INADDR_ANY;
   serv_addr.sin_port = htons(portNo);
