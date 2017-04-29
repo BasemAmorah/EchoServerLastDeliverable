@@ -40,6 +40,10 @@ void interruptHandler(int signalNo) {
     close(tcpSockFDs[i]);
     close(udpSockFDs[i]);
   }
+
+  /* This will send a termination message to log_s */
+  sendToLogServer(NULL, NULL);
+
   exit(0);
 }
 
@@ -134,13 +138,18 @@ void sendToLogServer(const char *ipAddress, const char *messageContent) {
   /* calloc() sets the memory to zero, so no need to call bzero here. */
   char *buffer = calloc(BUFFER_SIZE, sizeof(char));
 
-  /* Construct the message to be sent to the log server.
-   * The message will consist of the IP address of the client and the message content, separated by
-   * a tab ('\t') character.
-   */
-  strcat(buffer, ipAddress);
-  strcat(buffer, "\t");
-  strcat(buffer, messageContent);
+  if (ipAddress == NULL) {
+    /* If we have no IP address, this is a termination message. */
+    strcpy(buffer, ServerTerminationMessage);
+  } else {
+    /* Construct the message to be sent to the log server.
+     * The message will consist of the IP address of the client and the message content, separated by
+     * a tab ('\t') character.
+     */
+    strcat(buffer, ipAddress);
+    strcat(buffer, "\t");
+    strcat(buffer, messageContent);
+  }
 
   /* We will communicate with server using UDP */
   sockfd = socket(AF_INET, SOCK_DGRAM, 0);
