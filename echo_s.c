@@ -111,6 +111,12 @@ void sendToLogServer(const char *ipAddress, const char *messageContent) {
   struct sockaddr_in serv_addr;
 
   int portno = 9999;
+
+  if(userDefinedPortNo != NULL)
+  {
+    portno = userDefinedPortNo;
+  }
+
   struct hostent *server = gethostbyname(logServerIPAddress);
   if (server == NULL) {
     fprintf(stderr, "error, no such host\n");
@@ -161,9 +167,6 @@ int main(int argc, char **argv) {
   numPorts = 0;
   // 3 is the max number of ports echo_s will support.
   int *portNos = malloc(3 * sizeof(int));
-  
-  //this will determine whether or not to 
-  int isUserDefined = 0;
 
   //skip 0, since it's the name of the executable. After that, check if the arguments entered contains -logport and a port number
   for(int x = 1; x < argc; x++)
@@ -175,17 +178,12 @@ int main(int argc, char **argv) {
     {
       if((userDefinedPortNo = atoi(argv[x+1]))==0)
       {
-        error("Invalid argument for user defined port number");
+        error("Invalid argument for user defined port number\nThe server will use the default port number 9999");
       }
-      isUserDefined++;
-      portNos[0] = userDefinedPortNo;
-      numPorts++;
       break;
     }
   }
   
-  if(isUserDefined>0)
-  {
     // Skip 0, because it will be the name of the executable.
     for (int i = 1; i < argc; i++) {
       char *arg = argv[i];
@@ -199,7 +197,6 @@ int main(int argc, char **argv) {
         numPorts++;
       }
     }
-  }
 
   int *newtcpSockFDs = calloc(numPorts, sizeof(int));
   socklen_t *clilens = calloc(numPorts, sizeof(socklen_t));
