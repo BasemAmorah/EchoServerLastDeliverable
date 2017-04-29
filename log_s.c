@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
 
     if (strcmp(buffer, ServerTerminationMessage) == 0) {
       /* If this is a termination message, break out of the loop and let the program finish */
-      printf("Logging server is stopping...\n");
+      printf("echo_s is stoppping\n");
       break;
     }
 
