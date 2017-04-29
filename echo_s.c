@@ -22,7 +22,7 @@
 int numPorts;
 
 //user defined port number
-int userDefinedPortNo;
+int userDefinedPortNo = 0;
 
 /* TCP socket file descriptors for the server process. */
 int *tcpSockFDs;
@@ -116,7 +116,7 @@ void sendToLogServer(const char *ipAddress, const char *messageContent) {
 
   int portno = 9999;
 
-  if(userDefinedPortNo != NULL)
+  if(userDefinedPortNo != 0)
   {
     portno = userDefinedPortNo;
   }
